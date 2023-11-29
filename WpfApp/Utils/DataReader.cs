@@ -3,7 +3,7 @@
 public static class DataReader
 {
     private static readonly CultureInfo RuCulture = new("ru-ru");
-    
+
     public static IList<double> ReadData(string fileName)
     {
         string path = $"{Environment.CurrentDirectory}/Data/{fileName}";
@@ -22,7 +22,7 @@ public static class DataReader
 
         return probabilities;
     }
-    
+
     public static IList<DataPoint> ReadDataPoints(string fileName)
     {
         string path = $"{Environment.CurrentDirectory}/Data/{fileName}";
