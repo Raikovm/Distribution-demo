@@ -4,36 +4,58 @@ namespace WpfApp;
 
 public partial class MainWindow
 {
+    public ObservableCollection<string> FileNames { get; }
+
     public MainWindow()
     {
         InitializeComponent();
+        DataContext = this;
 
-        string[] fileNames = {
-            // "V01-V2-N1.txt",
-            // "V01-V2-N2.txt", 
-            // "V01-V2-N5.txt",
-            // "V01-V2-N10.txt",
-            // "V01-V2-N25.txt",
-            "V01-V2-N50.txt"
-        };
+        FileNames = new(DataReader.GetFileNames());
+    }
 
-        var result = fileNames.Select(x =>
+    private void DatasetComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ICollection<string> selectedDatasets = DatasetComboBox.SelectedItem is string selectedItem
+            ? new[] { selectedItem }
+            : Array.Empty<string>();
+
+        DrawCharts(selectedDatasets);
+    }
+
+    private void DrawCharts(ICollection<string> selectedDatasets)
+    {
+        Chart.Series.Clear();
+
+        var result = selectedDatasets.Select(x =>
         {
             IList<double> dataPoints = DataReader.ReadData(x);
 
-            (double mean, double stddev, double variance) = MomentsMethod(dataPoints);
+            (double mean, double stdDev, double variance) = MomentsMethod(dataPoints);
             return new
             {
                 dataset = x,
                 mean,
                 variance,
-                stddev,
-                Range = (Start: 0, end: dataPoints.Count)
+                stdDev,
+                Range = (Start: 0, end: dataPoints.Count - 1)
             };
         }).ToList();
 
-        CartesianChart chart = new();
-        foreach (string fileName in fileNames)
+        StringBuilder stringBuilder = new();
+        result.ForEach(x =>
+        {
+            string s = $"""
+                        Dataset = {x.dataset}
+                        μ = {$"{x.mean:N4}"}
+                        σ = {$"{x.stdDev:N4}"}
+                        σ^2 = {$"{x.variance:N4}"}
+                        """;
+            stringBuilder.Append(s);
+        });
+        ResultsTextBlock.Text = stringBuilder.ToString();
+
+        foreach (string fileName in selectedDatasets)
         {
             IList<double> dataPoints = DataReader.ReadData(fileName);
 
@@ -44,16 +66,15 @@ public partial class MainWindow
                 PointGeometry = null,
             };
 
-            chart.Series.Add(series);
+            Chart.Series.Add(series);
         }
-
 
         foreach (var data in result)
         {
             ChartValues<ObservablePoint> observablePoints = new();
             for (double x = data.Range.Start; x <= data.Range.end; x += 0.1)
             {
-                double y = NormalDistribution(x, data.mean, Math.Sqrt(data.stddev));
+                double y = NormalDistribution(x, data.mean, Math.Sqrt(data.stdDev));
                 observablePoints.Add(new ObservablePoint(x, y));
             }
 
@@ -64,10 +85,8 @@ public partial class MainWindow
                 PointGeometry = null,
             };
 
-            chart.Series.Add(lineSeries);
+            Chart.Series.Add(lineSeries);
         }
-
-        Content = chart;
     }
 
     private static (double μ, double σ, double σ2) MomentsMethod(IList<double> probabilities)
@@ -84,5 +103,6 @@ public partial class MainWindow
         var factor = 1 / (stdDev * Math.Sqrt(2 * Math.PI));
         return factor * Math.Exp(-Math.Pow(x - mean, 2) / (2 * Math.Pow(stdDev, 2)));
     }
+
 
 }

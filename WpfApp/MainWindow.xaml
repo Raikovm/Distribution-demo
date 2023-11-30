@@ -4,8 +4,47 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp"
+        xmlns:wpf="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=local:MainWindow, IsDesignTimeCreatable=True}"
         Title="MainWindow" Height="450" Width="800">
+    
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="170"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="10"/>
+        </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" 
+                Grid.Column="0"
+                Padding="10">
+            <StackPanel >
+                <ComboBox Name="DatasetComboBox"
+                          Height="20"
+                          ItemsSource="{Binding FileNames}"
+                          SelectionChanged="DatasetComboBox_OnSelectionChanged">
+                </ComboBox>
+                <TextBlock Name="ResultsTextBlock">
+                </TextBlock>
+
+            </StackPanel>
+        </Border>
+        
+        <wpf:CartesianChart x:Name="Chart"
+                            Grid.Row="0" 
+                            Grid.Column="1">
+            <wpf:CartesianChart.AxisY>
+                <wpf:Axis Title="Probability" />
+            </wpf:CartesianChart.AxisY>
+            <wpf:CartesianChart.AxisX>
+                <wpf:Axis Title="Value" />
+            </wpf:CartesianChart.AxisX>
+        </wpf:CartesianChart>
     </Grid>
+    
+    
 </Window>
