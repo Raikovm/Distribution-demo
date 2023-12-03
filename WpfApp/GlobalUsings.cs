@@ -5,6 +5,8 @@ global using System.Text;
 global using System.Windows;
 global using System.Windows.Controls;
 global using LiveCharts;
+global using LiveCharts.Defaults;
 global using LiveCharts.Wpf;
 global using Microsoft.VisualBasic.FileIO;
+global using WpfApp.Models;
 global using WpfApp.Utils;
